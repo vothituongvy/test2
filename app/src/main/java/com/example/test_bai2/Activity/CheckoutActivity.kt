@@ -74,7 +74,7 @@ class CheckoutActivity : AppCompatActivity() {
         if (fromCart != null) {
             checkoutList.addAll(fromCart)
         } else {
-            val pId = intent.getStringExtra("productId")
+            val pId = intent.getStringExtra("productId") ?: ""
             val pName = intent.getStringExtra("name")
             val pPrice = intent.getLongExtra("price", 0L)
             val pImage = intent.getStringExtra("image")
@@ -82,9 +82,20 @@ class CheckoutActivity : AppCompatActivity() {
             val pQty = intent.getIntExtra("qty", 1)
 
             if (pName != null) {
-                checkoutList.add(CartItem(pId ?: "", pName, pPrice, pImage ?: "", pSize ?: "", pQty))
+                checkoutList.add(
+                    CartItem(
+                        id = "",
+                        productId = pId,
+                        name = pName,
+                        price = pPrice,
+                        image = pImage ?: "",
+                        size = pSize ?: "",
+                        quantity = pQty
+                    )
+                )
             }
         }
+
         rvItems.adapter = CheckoutAdapter(checkoutList)
     }
 
@@ -125,7 +136,7 @@ class CheckoutActivity : AppCompatActivity() {
 
         availableVouchers.filter { it.isSelected }.forEach {
             if (it.type == "freeship") {
-                currentShippingFee = 0L // Nếu là freeship thì ship = 0
+                currentShippingFee = 0L
             } else {
                 voucherDiscount += it.discountAmount
             }
@@ -133,7 +144,6 @@ class CheckoutActivity : AppCompatActivity() {
 
         val totalBeforeCoins = originalTotal + currentShippingFee - voucherDiscount
 
-        // không trừ quá số tiền cần trả, không trừ quá số xu đang có
         coinDiscountUsed = if (swUseCoins.isChecked) {
             minOf(userCoins, maxOf(0L, totalBeforeCoins))
         } else {
@@ -167,7 +177,6 @@ class CheckoutActivity : AppCompatActivity() {
         if (voucher.isSelected) {
             voucher.isSelected = false
         } else {
-            // Chỉ cho chọn 1 voucher cùng loại
             availableVouchers.filter { it.type == voucher.type }.forEach { it.isSelected = false }
             voucher.isSelected = true
         }
@@ -183,7 +192,6 @@ class CheckoutActivity : AppCompatActivity() {
         val productRef = db.getReference("products")
         val cartRef = db.getReference("carts").child(userId)
 
-        // Trừ Xu (Chỉ trừ số đã dùng)
         if (coinDiscountUsed > 0) {
             userRef.child("coin").runTransaction(object : Transaction.Handler {
                 override fun doTransaction(currentData: MutableData): Transaction.Result {
@@ -195,13 +203,12 @@ class CheckoutActivity : AppCompatActivity() {
             })
         }
 
-        // Trừ Voucher (Nếu sl về 0 thì xóa luôn voucher )
         availableVouchers.filter { it.isSelected }.forEach { voucher ->
             userRef.child("my_vouchers").child(voucher.id).runTransaction(object : Transaction.Handler {
                 override fun doTransaction(currentData: MutableData): Transaction.Result {
                     val qty = currentData.child("quantity").getValue(Int::class.java) ?: 0
                     if (qty <= 1) {
-                        currentData.value = null // Xóa node voucher
+                        currentData.value = null
                     } else {
                         currentData.child("quantity").value = qty - 1
                     }
@@ -211,17 +218,23 @@ class CheckoutActivity : AppCompatActivity() {
             })
         }
 
-        // trừ sl trong kho sản phẩm và xóa giỏ hàng
+
         checkoutList.forEach { item ->
-            productRef.child(item.id).child("stock").runTransaction(object : Transaction.Handler {
-                override fun doTransaction(currentData: MutableData): Transaction.Result {
-                    val stock = currentData.getValue(Int::class.java) ?: 0
-                    if (stock >= item.quantity) currentData.value = stock - item.quantity
-                    return Transaction.success(currentData)
-                }
-                override fun onComplete(e: DatabaseError?, c: Boolean, s: DataSnapshot?) {}
-            })
-            cartRef.child(item.id).removeValue()
+            productRef.child(item.productId).child("stock")
+                .runTransaction(object : Transaction.Handler {
+                    override fun doTransaction(currentData: MutableData): Transaction.Result {
+                        val stock = currentData.getValue(Int::class.java) ?: 0
+                        if (stock >= item.quantity) {
+                            currentData.value = stock - item.quantity
+                        }
+                        return Transaction.success(currentData)
+                    }
+                    override fun onComplete(e: DatabaseError?, c: Boolean, s: DataSnapshot?) {}
+                })
+
+            if (item.id.isNotEmpty()) {
+                cartRef.child(item.id).removeValue()
+            }
         }
 
         Toast.makeText(this, "Đặt hàng thành công!", Toast.LENGTH_SHORT).show()

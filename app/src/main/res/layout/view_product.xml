@@ -21,7 +21,7 @@
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="320dp"
+                android:layout_height="300dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp">
 
@@ -37,34 +37,36 @@
                 android:id="@+id/txttenSP"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:text="Tên Sản Phẩm"
                 android:textColor="#212121"
-                android:textSize="26sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <RatingBar
                 android:id="@+id/ratingProduct"
-
+                style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:numStars="5"
+                android:isIndicator="true"
                 android:progressTint="#FFC107" />
 
             <TextView
                 android:id="@+id/txtGia"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:text="0đ"
                 android:textColor="#FF5722"
-                android:textSize="26sp"
+                android:textSize="24sp"
                 android:textStyle="bold" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginVertical="20dp"
+                android:layout_marginVertical="16dp"
                 android:background="#EEEEEE" />
 
             <TextView
@@ -72,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:text="Thông số chi tiết"
                 android:textStyle="bold"
-                android:textSize="24sp"
+                android:textSize="18sp"
                 android:textColor="#212121" />
 
             <TextView
@@ -80,10 +82,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:lineSpacingExtra="6dp"
+                android:lineSpacingExtra="4dp"
                 android:text="Thông tin đang tải..."
                 android:textColor="#616161"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -91,7 +93,7 @@
                 android:layout_marginTop="20dp"
                 android:text="Mô tả sản phẩm"
                 android:textStyle="bold"
-                android:textSize="24sp"
+                android:textSize="18sp"
                 android:textColor="#212121" />
 
             <TextView
@@ -99,13 +101,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:lineSpacingExtra="6dp"
+                android:lineSpacingExtra="4dp"
                 android:text="Mô tả chi tiết đang cập nhật..."
                 android:textColor="#616161"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
+
             <View
                 android:layout_width="match_parent"
-                android:layout_height="80dp" />
+                android:layout_height="100dp" />
 
         </LinearLayout>
     </ScrollView>
@@ -114,35 +117,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:padding="12dp"
         android:background="#FFFFFF"
-        android:elevation="10dp">
+        android:elevation="10dp"
+        android:baselineAligned="false">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddToCart"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="55dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/bg_button_outline"
+            android:layout_marginEnd="6dp"
             android:text="Thêm giỏ hàng"
             android:textColor="#FF5722"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:textSize="20sp"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            app:strokeColor="#FF5722"
+            app:cornerRadius="12dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBuyNow"
             android:layout_width="0dp"
-            android:layout_height="55dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/bg_button_solid"
+            android:layout_marginStart="6dp"
+            android:backgroundTint="#FF5722"
             android:text="Thanh toán ngay"
             android:textColor="#FFFFFF"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:textSize="20sp"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            app:cornerRadius="12dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
     </LinearLayout>
 
 </LinearLayout>
