@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA"
+    tools:context=".Activity.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:background="@android:color/white"
+        android:elevation="4dp">
+
+        <EditText
+            android:id="@+id/edttimkiem"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:hint="Tìm kiếm sản phẩm..."
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textSize="14sp"
+            android:background="@drawable/bg_search"
+            android:inputType="text"
+            android:textColor="#FF5722"
+            android:textColorHint="#FF5722" />
+
+        <ImageButton
+            android:id="@+id/btngiohang"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="10dp"
+            android:scaleType="centerInside"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/icon_giohang2"
+            app:tint="#FF5722"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:id="@+id/btnxu"
+            android:layout_width="0dp"
+            android:layout_height="85dp"
+            android:layout_weight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_button_outline"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="2dp">
+
+            <ImageView
+                android:id="@+id/img_xu"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/icon_xu2"
+                android:layout_marginBottom="4dp"
+                app:tint="#FF5722"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Săn Xu"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#FF5722"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_voucher"
+            android:layout_width="0dp"
+            android:layout_height="85dp"
+            android:layout_weight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_button_solid"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="4dp">
+
+            <ImageView
+                android:id="@+id/img_voucher"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/icon_voucher2"
+                android:layout_marginBottom="4dp"
+                app:tint="@android:color/white" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Voucher"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listProduct"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="12dp"
+        android:padding="10dp"
+        android:clipToPadding="false"
+        android:scrollbars="none"/>
+
+</LinearLayout>

@@ -1,0 +1,8 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:width="18dp"
+        android:height="18dp"
+        android:drawable="@drawable/icon_video2"
+        app:tint="#FF5722"/>
+</layer-list>
