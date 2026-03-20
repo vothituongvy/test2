@@ -26,7 +26,9 @@ class LoginActivity : AppCompatActivity() {
                 loginUser()
             }
         }
-
+        binding.txtForgot.setOnClickListener {
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+        }
         binding.txtRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
@@ -62,44 +64,34 @@ class LoginActivity : AppCompatActivity() {
     private fun loginUser() {
         val email = binding.edtEmail.text.toString().trim()
         val pass = binding.edtPassword.text.toString().trim()
+        binding.btnLogin.isEnabled = false
 
-        if (email.isEmpty() || pass.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-
-        db.orderByChild("email").equalTo(email).get().addOnSuccessListener { snapshot ->
-            if (snapshot.exists()) {
-                val userSnap = snapshot.children.first()
-                val hashedPass = userSnap.child("password").value.toString()
-
-                if (HashHelper.checkPassword(pass, hashedPass)) {
-                    auth.signInWithEmailAndPassword(email, pass).addOnSuccessListener {
-                        Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
+        auth.signInWithEmailAndPassword(email, pass).addOnSuccessListener { authResult ->
+            val uid = authResult.user?.uid
+            if (uid != null) {
+                db.child(uid).get().addOnSuccessListener { snapshot ->
+                    if (snapshot.exists()) {
                         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
                             val updates = mapOf(
                                 "fcmToken" to token,
-                                "lastLogin" to System.currentTimeMillis()
+                                "lastLogin" to System.currentTimeMillis(),
+                                "password" to HashHelper.hashPassword(pass)
                             )
-                            userSnap.ref.updateChildren(updates).addOnSuccessListener {
+
+                            snapshot.ref.updateChildren(updates).addOnSuccessListener {
+                                Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
                                 val intent = Intent(this, MainActivity::class.java)
                                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                 startActivity(intent)
                                 finish()
                             }
                         }
-                    }.addOnFailureListener { e ->
-                        Toast.makeText(this, "Lỗi xác thực: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this, "Sai mật khẩu!", Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(this, "Tài khoản không tồn tại!", Toast.LENGTH_SHORT).show()
             }
-        }.addOnFailureListener {
-            Toast.makeText(this, "Lỗi kết nối database!", Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener { e ->
+            binding.btnLogin.isEnabled = true
+            Toast.makeText(this, "Lỗi đăng nhập: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 }

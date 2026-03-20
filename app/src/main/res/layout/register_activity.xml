@@ -69,6 +69,7 @@
             android:hint="Nhập lại mật khẩu"
             android:inputType="textPassword"
             android:padding="12dp"
+            android:textColor="#FF5722"
             android:textColorHint="#9E9E9E" />
     </com.google.android.material.textfield.TextInputLayout>
 
