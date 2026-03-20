@@ -1,17 +1,20 @@
 package com.example.test_bai2.Activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.test_bai2.Activity.LoginActivity
 import com.example.test_bai2.Adapter.CheckoutAdapter
 import com.example.test_bai2.Adapter.VoucherAdapter
 import com.example.test_bai2.Model.CartItem
 import com.example.test_bai2.Model.Voucher
 import com.example.test_bai2.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 class CheckoutActivity : AppCompatActivity() {
@@ -31,11 +34,17 @@ class CheckoutActivity : AppCompatActivity() {
     private var shippingFee = 30000L
     private var coinDiscountUsed = 0L
 
-    private val userId = "user1"
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkout)
+
+        if (auth.currentUser == null) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            return
+        }
 
         initViews()
         loadDataFromIntent()
@@ -95,12 +104,12 @@ class CheckoutActivity : AppCompatActivity() {
                 )
             }
         }
-
         rvItems.adapter = CheckoutAdapter(checkoutList)
     }
 
     private fun fetchUserDataFromFirebase() {
-        val userRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
+        val uId = auth.currentUser?.uid ?: return
+        val userRef = FirebaseDatabase.getInstance().getReference("users").child(uId)
 
         userRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -181,16 +190,18 @@ class CheckoutActivity : AppCompatActivity() {
             voucher.isSelected = true
         }
 
-        edtVoucher.setText(availableVouchers.filter { it.isSelected }.joinToString(", ") { it.code })
+        val selectedCodes = availableVouchers.filter { it.isSelected }.map { it.id }
+        edtVoucher.setText(selectedCodes.joinToString(", "))
         calculateFinalTotal()
         dialog.dismiss()
     }
 
     private fun placeOrder() {
+        val uId = auth.currentUser?.uid ?: return
         val db = FirebaseDatabase.getInstance()
-        val userRef = db.getReference("users").child(userId)
+        val userRef = db.getReference("users").child(uId)
         val productRef = db.getReference("products")
-        val cartRef = db.getReference("carts").child(userId)
+        val cartRef = db.getReference("carts").child(uId)
 
         if (coinDiscountUsed > 0) {
             userRef.child("coin").runTransaction(object : Transaction.Handler {
@@ -218,7 +229,6 @@ class CheckoutActivity : AppCompatActivity() {
             })
         }
 
-
         checkoutList.forEach { item ->
             productRef.child(item.productId).child("stock")
                 .runTransaction(object : Transaction.Handler {
@@ -238,6 +248,10 @@ class CheckoutActivity : AppCompatActivity() {
         }
 
         Toast.makeText(this, "Đặt hàng thành công!", Toast.LENGTH_SHORT).show()
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
         finish()
     }
 }

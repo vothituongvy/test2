@@ -1,8 +1,8 @@
 {
   "project_info": {
     "project_number": "495997051080",
-    "project_id": "shopping-7059b",
     "firebase_url": "https://shopping-7059b-default-rtdb.firebaseio.com",
+    "project_id": "shopping-7059b",
     "storage_bucket": "shopping-7059b.firebasestorage.app"
   },
   "client": [
@@ -15,7 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "803388888972-to8er654cla969sgcoh0haim718i1j2h.apps.googleusercontent.com",
+          "client_id": "495997051080-g2qqegupqi09ra7o9d8lp5hfv2st5170.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.led.keyboard.neon.classic",
+            "certificate_hash": "b114e2cfb35377348033b04898e5eea2e81f44c2"
+          }
+        },
+        {
+          "client_id": "495997051080-j6f21h268hfjv4mfvqbubntifdibfr5e.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -28,7 +36,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "803388888972-to8er654cla969sgcoh0haim718i1j2h.apps.googleusercontent.com",
+              "client_id": "495997051080-j6f21h268hfjv4mfvqbubntifdibfr5e.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

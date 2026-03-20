@@ -8,20 +8,29 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.test_bai2.Activity.LoginActivity
 import com.example.test_bai2.Adapter.CartAdapter
 import com.example.test_bai2.Model.CartItem
 import com.example.test_bai2.R
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 class CartActivity : AppCompatActivity() {
 
     private lateinit var adapter: CartAdapter
     private val cartList = mutableListOf<CartItem>()
-    private val userId = "user1"
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cart)
+
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            return
+        }
 
         val rvCart = findViewById<RecyclerView>(R.id.rvCart)
         rvCart.layoutManager = LinearLayoutManager(this)
@@ -51,9 +60,11 @@ class CartActivity : AppCompatActivity() {
     }
 
     private fun loadCartData() {
+        val uId = auth.currentUser?.uid ?: return
+
         FirebaseDatabase.getInstance()
             .getReference("carts")
-            .child(userId)
+            .child(uId)
             .addValueEventListener(object : ValueEventListener {
 
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -64,8 +75,7 @@ class CartActivity : AppCompatActivity() {
                             val item = ds.getValue(CartItem::class.java)
                             item?.let {
                                 it.id = ds.key ?: ""
-                                it.productId = ds.child("productId")
-                                    .getValue(String::class.java) ?: ""
+                                it.productId = ds.child("productId").getValue(String::class.java) ?: ""
                                 cartList.add(it)
                             }
                         } catch (e: Exception) {
@@ -83,21 +93,17 @@ class CartActivity : AppCompatActivity() {
             })
     }
 
-    /**
-     * 🔥 FIX CHÍNH: KHÔNG CHO VƯỢT STOCK
-     */
     private fun updateQty(cartId: String, qty: Int) {
+        val uId = auth.currentUser?.uid ?: return
         if (cartId.isEmpty()) return
 
         val cartRef = FirebaseDatabase.getInstance()
             .getReference("carts")
-            .child(userId)
+            .child(uId)
             .child(cartId)
 
         cartRef.get().addOnSuccessListener { cartSnap ->
-
-            val productId = cartSnap.child("productId")
-                .getValue(String::class.java)
+            val productId = cartSnap.child("productId").getValue(String::class.java)
 
             if (productId.isNullOrEmpty()) {
                 Toast.makeText(this, "Không tìm thấy sản phẩm!", Toast.LENGTH_SHORT).show()
@@ -118,12 +124,10 @@ class CartActivity : AppCompatActivity() {
                             Toast.makeText(this, "Hết hàng!", Toast.LENGTH_SHORT).show()
                             cartRef.child("quantity").setValue(0)
                         }
-
                         qty > stock -> {
                             Toast.makeText(this, "Chỉ còn $stock sản phẩm!", Toast.LENGTH_SHORT).show()
                             cartRef.child("quantity").setValue(stock)
                         }
-
                         else -> {
                             cartRef.child("quantity").setValue(qty)
                         }
@@ -134,13 +138,9 @@ class CartActivity : AppCompatActivity() {
 
     private fun updateUI() {
         val total = adapter.getTotalPrice()
-
-        findViewById<TextView>(R.id.tvTotalPrice).text =
-            "${String.format("%,d", total)}đ"
+        findViewById<TextView>(R.id.tvTotalPrice).text = "${String.format("%,d", total)}đ"
 
         val count = adapter.selectedItems.filter { it.value }.size
-
-        findViewById<Button>(R.id.btnCheckout).text =
-            "Thanh toán ($count)"
+        findViewById<Button>(R.id.btnCheckout).text = "Thanh toán ($count)"
     }
 }
