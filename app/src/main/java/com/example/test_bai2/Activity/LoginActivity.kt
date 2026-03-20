@@ -10,7 +10,8 @@ import com.example.test_bai2.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
-
+// email app : vttvy10122004@gmail.com
+// password: Vovy1012!
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private val auth = FirebaseAuth.getInstance()
