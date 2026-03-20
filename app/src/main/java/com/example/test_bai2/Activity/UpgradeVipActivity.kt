@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.billingclient.api.*
-import com.example.test_bai2.Activity.LoginActivity
 import com.example.test_bai2.Adapter.PackageAdapter
 import com.example.test_bai2.Model.Package
 import com.example.test_bai2.R
@@ -29,8 +28,6 @@ class UpgradeVipActivity : AppCompatActivity() {
     private val productDetailsList = mutableListOf<ProductDetails>()
 
     private val TAG_BILLING = "BILLING_DEBUG"
-
-
     private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +50,6 @@ class UpgradeVipActivity : AppCompatActivity() {
                 val productDetails = productDetailsList.find { it.productId == selected.productId }
                 if (productDetails != null) {
                     launchPurchaseFlow(productDetails)
-                    startActivity(Intent(this, MainActivity::class.java))
                 } else {
                     Log.e(TAG_BILLING, "ProductId chưa sẵn sàng: ${selected.productId}")
                     Toast.makeText(this, "Sản phẩm chưa tải xong từ Store!", Toast.LENGTH_SHORT).show()
@@ -86,7 +82,6 @@ class UpgradeVipActivity : AppCompatActivity() {
             }
             .enablePendingPurchases()
             .build()
-
         establishConnection()
     }
 
@@ -106,21 +101,18 @@ class UpgradeVipActivity : AppCompatActivity() {
 
     private fun queryProducts(productType: String) {
         val productIds = listOf("basic.test", "com.led.weeklyb", "com.led.monthlyb", "com.led.yearly")
-
         val productList = productIds.map {
             QueryProductDetailsParams.Product.newBuilder()
                 .setProductId(it)
                 .setProductType(productType)
                 .build()
         }
-
         val params = QueryProductDetailsParams.newBuilder().setProductList(productList).build()
 
         billingClient.queryProductDetailsAsync(params) { result, list ->
             runOnUiThread { loadProducts.visibility = View.GONE }
             if (result.responseCode == BillingClient.BillingResponseCode.OK && !list.isNullOrEmpty()) {
                 productDetailsList.addAll(list)
-                Log.d(TAG_BILLING, "queryProducts success: ${productDetailsList.size} items")
             }
         }
     }
@@ -138,7 +130,6 @@ class UpgradeVipActivity : AppCompatActivity() {
         val flowParams = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(listOf(builder.build()))
             .build()
-
         billingClient.launchBillingFlow(this, flowParams)
     }
 
@@ -171,7 +162,6 @@ class UpgradeVipActivity : AppCompatActivity() {
                         for (data in snapshot.children) {
                             val coinBonus = data.child("benefits/coin").getValue(Int::class.java) ?: 0
                             val vouchersSnapshot = data.child("benefits/vouchers")
-
                             updateUserProfile(uId, coinBonus, vouchersSnapshot)
                         }
                     }
@@ -182,13 +172,8 @@ class UpgradeVipActivity : AppCompatActivity() {
             })
     }
 
-    private fun updateUserProfile(
-        uId: String,
-        coinBonus: Int,
-        vouchersSnapshot: DataSnapshot
-    ) {
+    private fun updateUserProfile(uId: String, coinBonus: Int, vouchersSnapshot: DataSnapshot) {
         val userRef = database.child("users").child(uId)
-
         userRef.runTransaction(object : Transaction.Handler {
             override fun doTransaction(currentData: MutableData): Transaction.Result {
                 val currentCoins = currentData.child("coin").getValue(Long::class.java) ?: 0L
@@ -196,7 +181,6 @@ class UpgradeVipActivity : AppCompatActivity() {
 
                 for (voucherSnap in vouchersSnapshot.children) {
                     val id = voucherSnap.child("id").getValue(String::class.java) ?: continue
-
                     val userVoucherRef = currentData.child("my_vouchers").child(id)
                     val currentQty = userVoucherRef.child("quantity").getValue(Int::class.java) ?: 0
 
@@ -206,13 +190,16 @@ class UpgradeVipActivity : AppCompatActivity() {
                     userVoucherRef.child("minOrder").value = voucherSnap.child("minOrder").value
                     userVoucherRef.child("value").value = voucherSnap.child("value").value
                 }
-
                 return Transaction.success(currentData)
             }
 
             override fun onComplete(error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?) {
                 if (committed) {
                     Toast.makeText(this@UpgradeVipActivity, "Thanh toán thành công! Đã nhận ưu đãi VIP", Toast.LENGTH_LONG).show()
+
+                    val intent = Intent(this@UpgradeVipActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
                     finish()
                 } else {
                     Log.e("TRANSACTION_FAIL", error?.message ?: "Unknown error")
@@ -226,16 +213,13 @@ class UpgradeVipActivity : AppCompatActivity() {
         database.child("packages").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) return
-
                 packageList.clear()
                 for (s in snapshot.children) {
                     val name = s.child("name").value?.toString() ?: "Gói VIP"
                     val price = s.child("price").getValue(Int::class.java) ?: 0
                     val productId = s.child("productId").value?.toString() ?: ""
-
                     val coin = s.child("benefits/coin").getValue(Int::class.java) ?: 0
                     val descriptionBuilder = StringBuilder()
-
                     if (coin > 0) descriptionBuilder.append("Tặng $coin xu")
 
                     val vouchersSnapshot = s.child("benefits/vouchers")
@@ -248,7 +232,6 @@ class UpgradeVipActivity : AppCompatActivity() {
                             }
                         }
                     }
-
                     val finalDescription = descriptionBuilder.toString().ifEmpty { "Nâng cấp trải nghiệm VIP" }
                     packageList.add(Package(name, price, finalDescription, productId))
                 }
